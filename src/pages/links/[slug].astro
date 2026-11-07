@@ -1,0 +1,25 @@
+---
+import InternalRedirect from '../../components/InternalRedirect.astro';
+import { getLinks, type ResolvedLink } from '../../lib/links';
+import { LINK_PREFIX } from '../../lib/site';
+
+/*
+ * Short links used to live at /links/<slug>/. They now live at the root (/<slug>/), so
+ * the old addresses redirect to the new ones and links already shared keep working.
+ * "links" is a reserved slug, so this folder can never clash with a short link.
+ * Skipped when PUBLIC_LINK_PREFIX is "links" (the links are already there).
+ */
+export async function getStaticPaths() {
+  if (LINK_PREFIX === 'links') return [];
+  const links = await getLinks();
+  return links.map((link) => ({ params: { slug: link.slug }, props: { link } }));
+}
+
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+---
+
+<InternalRedirect to={link.path} title={link.title} />

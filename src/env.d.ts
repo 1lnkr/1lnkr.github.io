@@ -1,5 +1,5 @@
 interface ImportMetaEnv {
-  /** Folder for short links ("links" → /links/<slug>/). Empty string = site root. */
+  /** Optional folder for short links ("go" → /go/<slug>/). Empty (default) = site root. */
   readonly PUBLIC_LINK_PREFIX?: string;
   /** GitHub repository Decap CMS commits to, "owner/repo". */
   readonly PUBLIC_CMS_REPO?: string;

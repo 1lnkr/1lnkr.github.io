@@ -1,0 +1,34 @@
+---
+import { absoluteUrl, settings, url } from '../lib/site';
+import { jsonForScript } from '../lib/validate';
+
+/*
+ * Tiny same-site redirect page (to a short link, never to an external destination).
+ * Used for the CMS "View Live" button and for old /links/<slug>/ addresses.
+ */
+interface Props {
+  /** Site-relative path of the short link, e.g. "/my-link/". */
+  to: string;
+  title: string;
+}
+
+const { to, title } = Astro.props;
+const target = url(to);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <script is:inline set:html={`location.replace(${jsonForScript(target)} + location.hash);`} />
+    <noscript><meta http-equiv="refresh" content={`0; url=${target}`} /></noscript>
+    <link rel="canonical" href={absoluteUrl(to)} />
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
+    <title>{title} · {settings.siteName}</title>
+  </head>
+  <body>
+    <p>This link has moved to <a href={target}>{absoluteUrl(to)}</a>.</p>
+  </body>
+</html>

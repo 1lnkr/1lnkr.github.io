@@ -1,0 +1,23 @@
+---
+import InternalRedirect from '../../../components/InternalRedirect.astro';
+import { getLinks, type ResolvedLink } from '../../../lib/links';
+
+/*
+ * Target of Decap's "View Live" button (collection `preview_path: admin/live/{{slug}}`).
+ * Decap only knows the entry's file name, while the short URL may use a custom slug, so
+ * this page maps file name → short link. It is under /admin/ (robots-disallowed, noindex)
+ * and only ever redirects to the short link on this site, never to the destination.
+ */
+export async function getStaticPaths() {
+  const links = await getLinks();
+  return links.map((link) => ({ params: { id: link.id }, props: { link } }));
+}
+
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+---
+
+<InternalRedirect to={link.path} title={link.title} />

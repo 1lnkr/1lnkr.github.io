@@ -294,6 +294,9 @@ export const GET: APIRoute = () => {
         format: 'json',
         extension: 'json',
         identifier_field: 'title',
+        // "View Live" button → /admin/live/<file name>/ → redirects to the short link
+        // (which may use a custom slug). See src/pages/admin/live/[id].astro.
+        preview_path: 'admin/live/{{slug}}/',
         // File name = automatic slug, generated once from the title when the link is created.
         slug: '{{slug}}',
         summary: '{{title}} · {{redirectType}} · {{published}}',

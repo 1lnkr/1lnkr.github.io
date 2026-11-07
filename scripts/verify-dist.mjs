@@ -25,10 +25,31 @@ const htmlFiles = files.filter((f) => f.endsWith('.html'));
 const home = readFileSync(join(dist, 'index.html'), 'utf8');
 const base = (home.match(/href="([^"]*)\/favicon\.svg"/) ?? [])[1] ?? '';
 
-// 1. Link pages: noindex + canonical + og:image, destination is http(s).
-const linkPages = htmlFiles.filter((f) => /[\\/]links[\\/][^\\/]+[\\/]index\.html$/.test(f));
-if (linkPages.length === 0) fail('No link pages were generated.');
-for (const file of linkPages) {
+// Expected URL of every link, worked out from the content files the same way the site does.
+const prefix = (process.env.PUBLIC_LINK_PREFIX ?? '').trim().replace(/^\/+|\/+$/g, '');
+const slugify = (v) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const contentDir = 'src/content/links';
+const entries = readdirSync(contentDir)
+  .filter((n) => n.endsWith('.json'))
+  .map((name) => {
+    const data = JSON.parse(readFileSync(join(contentDir, name), 'utf8'));
+    const id = name.replace(/\.json$/, '');
+    const slug = (data.slug || '').trim().toLowerCase() || slugify(id);
+    const dir = prefix ? join(dist, prefix, slug) : join(dist, slug);
+    return { name, id, data, slug, dir, path: `${base}/${prefix ? `${prefix}/` : ''}${slug}/` };
+  });
+const published = entries.filter((e) => e.data.published !== false);
+
+// 1. Link pages exist and are noindex with one title/canonical, an absolute og:image and http(s) destinations.
+if (published.length === 0) fail('No published links in src/content/links.');
+const redirectPages = [];
+for (const entry of published) {
+  const file = join(entry.dir, 'index.html');
+  if (!existsSync(file)) {
+    fail(`${entry.name}: page not built at ${entry.path}`);
+    continue;
+  }
+  redirectPages.push(file);
   const html = readFileSync(file, 'utf8');
   const rel = relative(dist, file);
   if (!/<meta name="robots" content="noindex, follow">/.test(html)) fail(`${rel}: missing noindex, follow`);
@@ -39,39 +60,43 @@ for (const file of linkPages) {
     const href = m[1] ?? m[2];
     if (!/^https?:\/\//.test(href)) fail(`${rel}: non-http destination ${href}`);
   }
+
+  // CMS "View Live" helper page: noindex and points at the short link, not the destination.
+  const live = join(dist, 'admin', 'live', entry.id, 'index.html');
+  if (!existsSync(live)) fail(`${entry.name}: CMS live-link page missing (admin/live/${entry.id}/)`);
+  else {
+    const liveHtml = readFileSync(live, 'utf8');
+    if (!/noindex/.test(liveHtml)) fail(`admin/live/${entry.id}/: missing noindex`);
+    if (!liveHtml.includes(entry.path)) fail(`admin/live/${entry.id}/: does not point to ${entry.path}`);
+    if (liveHtml.includes(String(entry.data.destination))) fail(`admin/live/${entry.id}/: exposes the destination`);
+  }
 }
 
-// 2. Sitemap contains no link/admin pages.
+// 2. Sitemap lists no link, helper or admin pages.
 const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
+const siteOrigin = (sitemap.match(/<loc>(https?:\/\/[^/<]+)/) ?? [])[1] ?? '';
 for (const loc of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
-  if (/\/links\/|\/admin\//.test(loc[1])) fail(`sitemap.xml lists a non-indexable page: ${loc[1]}`);
+  const path = loc[1].slice(siteOrigin.length);
+  if (/\/admin\/|\/links\//.test(path) || entries.some((e) => e.path === path)) fail(`sitemap.xml lists a non-indexable page: ${loc[1]}`);
 }
 const robots = readFileSync(join(dist, 'robots.txt'), 'utf8');
 if (!/^Sitemap: https:\/\/.+\/sitemap\.xml$/m.test(robots)) fail('robots.txt has no absolute Sitemap line');
 if (/^Disallow: \/\s*$/m.test(robots)) fail('robots.txt blocks the whole site');
 
-// 3b. Links with "Show on homepage" off are built but not listed on the homepage.
-for (const name of readdirSync('src/content/links').filter((n) => n.endsWith('.json'))) {
-  const data = JSON.parse(readFileSync(join('src/content/links', name), 'utf8'));
-  if (data.published !== false && data.showOnHomepage === false) {
-    const slug = data.slug || name.replace(/\.json$/, '');
-    if (!existsSync(join(dist, 'links', slug, 'index.html'))) fail(`Hidden link "${name}" was not built`);
-    if (home.includes(`/links/${slug}/`) || home.includes(String(data.destination))) fail(`Hidden link "${name}" is listed on the homepage`);
+// 3. Links with "Show on homepage" off are built but not listed on the homepage.
+for (const entry of published.filter((e) => e.data.showOnHomepage === false)) {
+  if (home.includes(`href="${entry.path}"`) || home.includes(String(entry.data.destination))) {
+    fail(`Hidden link "${entry.name}" is listed on the homepage`);
   }
 }
 
-// 3. Drafts are never built.
-const contentDir = 'src/content/links';
-for (const name of readdirSync(contentDir).filter((n) => n.endsWith('.json'))) {
-  const data = JSON.parse(readFileSync(join(contentDir, name), 'utf8'));
-  if (data.published === false) {
-    const slug = data.slug || name.replace(/\.json$/, '');
-    if (existsSync(join(dist, 'links', slug))) fail(`Draft "${name}" was built`);
-    for (const f of htmlFiles) {
-      if (readFileSync(f, 'utf8').includes(data.destination) && !String(data.destination).match(/^https:\/\/example\.com\/?$/)) {
-        fail(`Draft destination leaked into ${relative(dist, f)}`);
-      }
-    }
+// 3b. Drafts are never built and their destinations never leak.
+for (const entry of entries.filter((e) => e.data.published === false)) {
+  if (existsSync(entry.dir)) fail(`Draft "${entry.name}" was built`);
+  if (existsSync(join(dist, 'admin', 'live', entry.id))) fail(`Draft "${entry.name}" has a live-link page`);
+  if (/^https:\/\/example\.com\/?$/.test(String(entry.data.destination))) continue;
+  for (const f of htmlFiles) {
+    if (readFileSync(f, 'utf8').includes(entry.data.destination)) fail(`Draft destination leaked into ${relative(dist, f)}`);
   }
 }
 
@@ -95,4 +120,4 @@ if (errors.length) {
   console.error(`✗ ${errors.length} problem(s):\n  - ${errors.join('\n  - ')}`);
   process.exit(1);
 }
-console.log(`✓ dist OK — ${linkPages.length} link page(s), ${htmlFiles.length} HTML file(s), base "${base || '/'}"`);
+console.log(`✓ dist OK — ${redirectPages.length} link page(s), ${htmlFiles.length} HTML file(s), base "${base || '/'}"`);

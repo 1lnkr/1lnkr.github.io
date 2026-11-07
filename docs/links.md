@@ -21,7 +21,11 @@ The site rebuilds in about 1–2 minutes. Check progress in the repository's **A
 
 ## Slugs
 
-The short URL is `/<prefix>/<slug>/` (`/links/<slug>/` by default).
+The short URL is `https://lnkrs.github.io/<slug>/`, at the site root. (Set the `PUBLIC_LINK_PREFIX`
+variable, for example `go`, if you ever want them in a folder such as `/go/<slug>/`.)
+
+Links used to live under `/links/<slug>/`. Those old addresses still work: each one forwards
+to the new root URL, so links you already shared don't break.
 
 - **Automatic (default):** leave *Custom slug* empty. When you first save the link, Decap
   makes a file name from the title ("My Download Guide" → `my-download-guide.json`), and that
@@ -37,6 +41,19 @@ The build fails, and nothing is deployed, if:
   (`RESERVED_SLUGS` in `src/lib/validate.ts`).
 
 Changing a slug changes the short URL, so old shared links stop working.
+
+## Seeing the live link in the CMS
+
+- **Preview pane** (right side of the editor, toggle with the eye icon): shows the
+  **short URL** as you type, marked *custom slug* or *automatic slug*, with **Open short URL**
+  and **Copy short URL** buttons. It also shows whether the link is live, a draft or hidden
+  from the homepage, plus its type and destination. For a new link it previews the automatic
+  slug from the title before you save.
+- **View Live** (top bar, after the link is published): opens the live short link.
+  It goes through `/admin/live/<file name>/`, a small helper page that forwards to the
+  short URL, so it also works for custom slugs.
+
+A new or edited link goes live about 1–2 minutes after you save, once the site has rebuilt.
 
 ## Redirect types
 

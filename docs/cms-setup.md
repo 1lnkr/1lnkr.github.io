@@ -45,9 +45,9 @@ Nothing else changes on the proxy. The GitHub OAuth App's callback URL stays
 `https://decap-oauth-bishal.vercel.app/api/callback`.
 
 Then open https://lnkrs.github.io/admin/ → **Login with GitHub**. The GitHub account you log
-in with must have write access to `Lnkrs/Lnkrs.github.io`. If **Lnkrs** is an organisation,
-the organisation may also need to approve the OAuth App: GitHub → Organisation settings →
-Third-party access → OAuth app policy.
+in with must have write access to `Lnkrs/Lnkrs.github.io`. **Lnkrs is an organisation**, so
+an owner must also approve the proxy's OAuth App once, or saving fails with "OAuth App access
+restrictions". See the steps in [troubleshooting.md](troubleshooting.md).
 
 How the proxy checks the site: Decap sends the page's hostname as `site_id`
 (`lnkrs.github.io`), the proxy turns it into `https://lnkrs.github.io`, and it refuses with

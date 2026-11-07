@@ -65,10 +65,10 @@ function loadSettings(raw: typeof settingsJson): SiteSettings {
 export const settings = loadSettings(settingsJson);
 
 /**
- * Folder that holds the short links: "links" → /links/my-link/.
- * Set PUBLIC_LINK_PREFIX="" to serve links from the site root (/my-link/).
+ * Short links live at the site root by default: https://lnkrs.github.io/my-link/.
+ * Set PUBLIC_LINK_PREFIX (e.g. "go") to put them in a folder instead: /go/my-link/.
  */
-export const LINK_PREFIX = (import.meta.env.PUBLIC_LINK_PREFIX ?? 'links').trim().replace(/^\/+|\/+$/g, '');
+export const LINK_PREFIX = (import.meta.env.PUBLIC_LINK_PREFIX ?? '').trim().replace(/^\/+|\/+$/g, '');
 if (LINK_PREFIX && !SLUG_PATTERN.test(LINK_PREFIX)) {
   throw new Error(`PUBLIC_LINK_PREFIX "${LINK_PREFIX}" must use lowercase letters, numbers and single hyphens only.`);
 }

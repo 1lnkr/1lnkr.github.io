@@ -5,7 +5,7 @@ Only the repository owner can create or edit links (through Decap CMS, using Git
 Every published link becomes a static page such as:
 
 ```
-https://lnkrs.github.io/links/my-link/
+https://lnkrs.github.io/my-link/
 ```
 
 Each link uses one of three redirect types:

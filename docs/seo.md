@@ -10,8 +10,9 @@ for social sharing.**
 | Page | robots | In sitemap | Notes |
 | --- | --- | --- | --- |
 | `/` dashboard | `index, follow` (switchable: *Site settings → Allow search engines to index the dashboard homepage*) | Yes, if indexable | Unique title and description from Site settings |
-| `/links/<slug>/` (direct, locker, timer) | `noindex, follow` | **No** | Full Open Graph and Twitter tags |
-| `/admin/` | `noindex, nofollow` | No | Also `Disallow`ed in robots.txt |
+| `/<slug>/` (direct, locker, timer) | `noindex, follow` | **No** | Full Open Graph and Twitter tags |
+| `/admin/` and `/admin/live/<file>/` | `noindex, nofollow` | No | Also `Disallow`ed in robots.txt |
+| `/links/<slug>/` (old addresses) | `noindex, nofollow` | No | Forwards to `/<slug>/` |
 | `404` | `noindex, nofollow` | No | |
 
 All tags come from one component (`src/components/Seo.astro`), so a page can't end up with

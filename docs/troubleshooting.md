@@ -38,9 +38,23 @@ Re-run the workflow.
 - GitHub shows "redirect_uri is not associated with this application": the OAuth App's
   callback URL must be exactly `https://decap-oauth-bishal.vercel.app/api/callback`.
 - `Invalid state signature`: `GITHUB_CLIENT_SECRET` changed on Vercel mid-login. Try again.
-- If Lnkrs is an organisation, it may block the OAuth App until an owner approves it
-  (Organisation settings → Third-party access).
 - "Your GitHub user account does not have access to this repo": the account needs write access.
+
+### "Failed to persist entry: API_ERROR: … the `Lnkrs` organization has enabled OAuth App access restrictions"
+
+Login worked, but the **Lnkrs** organisation blocks third-party OAuth Apps by default, so
+GitHub refuses the commit. An organisation **owner** must approve the OAuth App that the
+Vercel proxy uses (the app whose callback is `https://decap-oauth-bishal.vercel.app/api/callback`):
+
+1. Open https://github.com/settings/applications → **Authorized OAuth Apps** → click the app.
+2. Under **Organization access**, click **Grant** next to **Lnkrs**. Non-owners see
+   **Request** instead, and an owner then approves it.
+3. Or, as an owner: https://github.com/organizations/Lnkrs/settings/oauth_application_policy
+   → find the app → **Approve** (pending requests appear there too).
+
+Then reload `/admin/` and save again. No rebuild or code change is needed. Avoid
+**Remove restrictions** on that page: it lets *every* OAuth App you authorise read the
+organisation's data, not just this one.
 
 ### Pages, images or CSS 404 on GitHub Pages
 

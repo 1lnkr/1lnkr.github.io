@@ -26,7 +26,7 @@ before issuing a redirect. That is out of scope for this static project.
 - Short links are HTML pages that redirect with JavaScript (plus a `<meta refresh>` fallback),
   not HTTP 301/302 responses. Browsers and social apps handle this fine. Some command-line
   tools and simple bots won't follow the redirect.
-- Each URL needs its trailing slash (`/links/guide/`). GitHub Pages redirects `/links/guide` → `/links/guide/` automatically.
+- Each URL needs its trailing slash (`/guide/`). GitHub Pages redirects `/guide` → `/guide/` automatically.
 
 ## Changes are not instant
 

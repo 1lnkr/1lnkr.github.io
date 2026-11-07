@@ -3,7 +3,7 @@
 The site is published at **https://lnkrs.github.io/** from the repository
 **`Lnkrs/Lnkrs.github.io`**. Because the repository is named `<owner>.github.io`, GitHub Pages
 serves it at the domain root, so the base path is `/` and short links look like
-`https://lnkrs.github.io/links/my-link/`.
+`https://lnkrs.github.io/my-link/`.
 
 It is built by GitHub Actions with the official [`withastro/action`](https://github.com/withastro/action)
 and published with `actions/deploy-pages`. Every push to `main` deploys, including the commits
@@ -61,7 +61,7 @@ Actions → **Variables**). None of these are secrets.
 | --- | --- | --- |
 | `PUBLIC_SITE_URL` | `https://go.example.com` | Custom domain |
 | `PUBLIC_BASE_PATH` | `/` | Base path |
-| `PUBLIC_LINK_PREFIX` | `go` | Short links at `/go/<slug>/`. Use `/` to serve them from the root (`/<slug>/`). |
+| `PUBLIC_LINK_PREFIX` | `go` | Put short links in a folder (`/go/<slug>/`). Unset (default) = site root (`/<slug>/`). |
 | `PUBLIC_CMS_REPO` | `Lnkrs/Lnkrs.github.io` | Repository Decap commits to |
 | `PUBLIC_CMS_BRANCH` | `main` | Branch Decap commits to |
 | `PUBLIC_CMS_OAUTH_URL` | `https://decap-oauth-bishal.vercel.app` | OAuth proxy |
@@ -91,9 +91,10 @@ and field.
 ## 6. Checklist after the first deploy
 
 - [ ] https://lnkrs.github.io/ shows the dashboard
-- [ ] https://lnkrs.github.io/links/astro/ redirects to the Astro docs
-- [ ] https://lnkrs.github.io/links/decap-cms-setup-guide/ shows the locker
-- [ ] https://lnkrs.github.io/links/pages/ shows the countdown
+- [ ] https://lnkrs.github.io/astro/ redirects to the Astro docs
+- [ ] https://lnkrs.github.io/decap-cms-setup-guide/ shows the locker
+- [ ] https://lnkrs.github.io/pages/ shows the countdown
+- [ ] An old address such as https://lnkrs.github.io/links/pages/ forwards to https://lnkrs.github.io/pages/
 - [ ] https://lnkrs.github.io/sitemap.xml lists only the homepage, and https://lnkrs.github.io/robots.txt points to it
 - [ ] https://lnkrs.github.io/admin/ → Login with GitHub works
 - [ ] Delete or replace the demo links and `draft-example.json`

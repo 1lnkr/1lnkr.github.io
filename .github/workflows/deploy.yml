@@ -44,7 +44,7 @@ jobs:
       # Without them the site URL and base path are derived from the repository name.
       PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
       PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH }}
-      PUBLIC_LINK_PREFIX: ${{ vars.PUBLIC_LINK_PREFIX || 'links' }}
+      PUBLIC_LINK_PREFIX: ${{ vars.PUBLIC_LINK_PREFIX }}
       PUBLIC_CMS_REPO: ${{ vars.PUBLIC_CMS_REPO }}
       PUBLIC_CMS_BRANCH: ${{ vars.PUBLIC_CMS_BRANCH }}
       PUBLIC_CMS_OAUTH_URL: ${{ vars.PUBLIC_CMS_OAUTH_URL }}
