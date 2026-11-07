@@ -1,0 +1,22 @@
+{
+  "title": "GitHub Pages Documentation",
+  "slug": "pages",
+  "destination": "https://docs.github.com/en/pages",
+  "image": "/images/uploads/github-pages.png",
+  "imageAlt": "Green card reading GitHub Pages",
+  "shortDescription": "How to publish a static website for free straight from a GitHub repository.",
+  "category": "Documentation",
+  "tags": ["github", "hosting"],
+  "published": true,
+  "createdAt": "2026-11-05T11:15:00.000Z",
+  "redirectType": "timer",
+  "timer": {
+    "duration": 8,
+    "heading": "Your link is almost ready",
+    "description": "You are about to visit the official GitHub Pages documentation.",
+    "continueText": "Continue to GitHub Docs",
+    "autoContinue": false,
+    "showContinueButton": true
+  },
+  "ads": { "mode": "inherit", "placement": "inherit", "code": "" }
+}

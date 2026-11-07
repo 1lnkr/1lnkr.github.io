@@ -1,0 +1,31 @@
+{
+  "name": "astro-url-shortner",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal static URL shortener with direct, locker and timed redirects — Astro + Decap CMS on GitHub Pages.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node --test \"tests/*.test.ts\"",
+    "verify": "npm run check && npm test && npm run build && node scripts/verify-dist.mjs",
+    "cms": "decap-server",
+    "generate:images": "node scripts/generate-images.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^7.4.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^24.19.2",
+    "decap-server": "^3.11.6",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.3"
+  }
+}

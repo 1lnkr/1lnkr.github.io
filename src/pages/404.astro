@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { settings, url } from '../lib/site';
+---
+
+<BaseLayout
+  title={`Link not found · ${settings.siteName}`}
+  description="This short link does not exist or is no longer available."
+  robots="noindex, nofollow"
+  narrow
+>
+  <section class="card not-found">
+    <p class="code" aria-hidden="true">404</p>
+    <h1>Link not found</h1>
+    <p class="muted">
+      This short link doesn't exist, was unpublished, or the address was mistyped. Short links are case-sensitive and end with a slash.
+    </p>
+    <a class="btn btn-primary" href={url('/')}>Go to the homepage</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+  .code {
+    margin: 0;
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .muted {
+    color: var(--text-muted);
+    max-width: 44ch;
+    margin-inline: auto;
+  }
+</style>

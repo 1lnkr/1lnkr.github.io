@@ -1,0 +1,29 @@
+---
+import { getLinks, type ResolvedLink } from '../lib/links';
+import DirectRedirect from '../components/redirect/DirectRedirect.astro';
+import LockerPage from '../components/redirect/LockerPage.astro';
+import TimerPage from '../components/redirect/TimerPage.astro';
+
+/*
+ * One static page per *published* link, at /<prefix>/<slug>/ (prefix "links" by default).
+ * The destination is baked in at build time from the CMS entry — nothing on the page
+ * reads query parameters, so this can never act as an open redirect.
+ */
+export async function getStaticPaths() {
+  const links = await getLinks();
+  return links.map((link) => ({
+    params: { path: link.path.replace(/^\/|\/$/g, '') },
+    props: { link },
+  }));
+}
+
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+---
+
+{link.effectiveType === 'direct' && <DirectRedirect link={link} />}
+{link.effectiveType === 'locker' && <LockerPage link={link} />}
+{link.effectiveType === 'timer' && <TimerPage link={link} />}

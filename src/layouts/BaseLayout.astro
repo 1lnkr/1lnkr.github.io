@@ -1,0 +1,78 @@
+---
+import '../styles/global.css';
+import Seo from '../components/Seo.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { settings, url } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  robots?: string;
+  /** Narrow, centred layout for locker/timer pages. */
+  narrow?: boolean;
+  /** Referrer policy for the page. Interstitials send only the origin to destinations. */
+  referrer?: string;
+}
+
+const { narrow = false, referrer = 'strict-origin-when-cross-origin', ...seo } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content={referrer} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
+    <link rel="apple-touch-icon" href={url('/images/site/apple-touch-icon.png')} />
+    <link rel="sitemap" type="application/xml" href={url('/sitemap.xml')} />
+    <Seo {...seo} />
+    <script is:inline>
+      // Apply the saved theme before first paint (no flash). Storage can be unavailable.
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class={narrow ? 'container narrow' : 'container'}>
+        <a class="brand" href={url('/')}>
+          <svg viewBox="0 0 64 64" aria-hidden="true"
+            ><rect width="64" height="64" rx="14" fill="var(--accent)"></rect><g
+              fill="none"
+              stroke="var(--accent-text)"
+              stroke-width="6"
+              stroke-linecap="round"
+              ><path d="M28 36a9 9 0 0 0 12.7 0l7.1-7.1a9 9 0 0 0-12.7-12.7l-2.4 2.4"></path><path
+                d="M36 28a9 9 0 0 0-12.7 0l-7.1 7.1a9 9 0 0 0 12.7 12.7l2.4-2.4"></path></g
+            ></svg
+          >
+          <span>{settings.siteName}</span>
+        </a>
+        <div class="header-actions">
+          <slot name="header-actions" />
+          <ThemeToggle />
+        </div>
+      </div>
+    </header>
+    <main id="main" class={narrow ? 'container narrow' : 'container'}>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class={narrow ? 'container narrow' : 'container'}>
+        <p>&copy; {year} {settings.ownerName || settings.siteName}</p>
+        <slot name="footer" />
+      </div>
+    </footer>
+  </body>
+</html>

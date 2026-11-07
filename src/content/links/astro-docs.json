@@ -1,0 +1,35 @@
+{
+  "shortDescription": "The official guides and API reference for the Astro web framework.",
+  "timer": {
+    "duration": 1,
+    "autoContinue": false,
+    "showContinueButton": false
+  },
+  "showOnHomepage": false,
+  "slug": "astro",
+  "destination": "https://docs.astro.build/en/getting-started/",
+  "published": true,
+  "imageAlt": "Purple card reading Astro Docs",
+  "updatedAt": "2026-11-01T09:00:00.000Z",
+  "ads": {
+    "mode": "inherit",
+    "placement": "inherit",
+    "code": ""
+  },
+  "canonical": "",
+  "redirectType": "direct",
+  "metaDescription": "",
+  "title": "Astro Documentation",
+  "locker": {
+    "enabled": false,
+    "showProgress": false
+  },
+  "tags": [
+    "astro",
+    "web"
+  ],
+  "createdAt": "2026-11-01T09:00:00.000Z",
+  "image": "/images/uploads/astro-docs.png",
+  "seoTitle": "",
+  "category": "Documentation"
+}

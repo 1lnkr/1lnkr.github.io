@@ -1,0 +1,215 @@
+---
+import { REDIRECT_LABELS, type ResolvedLink } from '../../lib/links';
+import { cmsEditUrl, imageSrc, url } from '../../lib/site';
+
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+const dateFmt = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const search = [link.title, link.slug, link.destination, link.category, ...link.tags].filter(Boolean).join(' ').toLowerCase();
+const typeLabel = REDIRECT_LABELS[link.effectiveType];
+---
+
+<li class="card row" data-link-row data-search={search} data-type={link.effectiveType} data-category={link.category}>
+  <div class="row__thumb">
+    {
+      link.image ? (
+        <img src={imageSrc(link.image)} alt="" width="160" height="84" loading="lazy" decoding="async" />
+      ) : (
+        <span class="row__placeholder" aria-hidden="true">
+          {link.title.slice(0, 1).toUpperCase()}
+        </span>
+      )
+    }
+  </div>
+
+  <div class="row__main">
+    <div class="row__title-line">
+      <h3 class="row__title">{link.title}</h3>
+      <span class={`badge badge-${link.effectiveType}`}>{typeLabel}</span>
+      {!link.published && <span class="badge badge-draft">Draft</span>}
+      {link.published && !link.showOnHomepage && (
+        <span class="badge badge-draft" title="Works as a short link but is not listed on the deployed homepage">
+          Hidden from homepage
+        </span>
+      )}
+      {
+        link.redirectType === 'locker' && link.effectiveType === 'direct' && (
+          <span class="badge" title="Locker is disabled for this link, so it redirects directly">
+            Locker off
+          </span>
+        )
+      }
+    </div>
+
+    <dl class="row__meta">
+      <div>
+        <dt>Short URL</dt>
+        <dd>
+          {
+            link.published ? (
+              <a class="mono" href={url(link.path)}>
+                {link.shortUrl}
+              </a>
+            ) : (
+              <span class="mono muted">{link.shortUrl} (not built)</span>
+            )
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Destination</dt>
+        <dd class="mono truncate" title={link.destination}>{link.destination}</dd>
+      </div>
+      <div class="row__facts">
+        <dt class="visually-hidden">Details</dt>
+        <dd>
+          <span>Slug <code>{link.slug}</code>{link.slugSource === 'auto' && <span class="muted"> (auto)</span>}</span>
+          <span aria-hidden="true">·</span>
+          <time datetime={link.createdAt.toISOString()}>Created {dateFmt.format(link.createdAt)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{link.category}</span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="row__actions" role="group" aria-label={`Actions for ${link.title}`}>
+    {
+      link.published && (
+        <a class="btn btn-sm" href={url(link.path)} target="_blank" rel="noopener">
+          Open short URL
+        </a>
+      )
+    }
+    {
+      link.published && (
+        <button type="button" class="btn btn-sm" data-copy={link.shortUrl}>
+          Copy short URL
+        </button>
+      )
+    }
+    <a class="btn btn-sm" href={link.destination} target="_blank" rel="noopener noreferrer">Open destination</a>
+    <a class="btn btn-sm" href={cmsEditUrl(link.id)}>Edit in CMS</a>
+  </div>
+</li>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 1rem 1.25rem;
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .row__thumb img,
+  .row__placeholder {
+    width: 120px;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .row__placeholder {
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-muted);
+  }
+  .row__title-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+  .row__title {
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .row__meta {
+    margin: 0;
+    display: grid;
+    gap: 0.2rem;
+    font-size: 0.875rem;
+  }
+  .row__meta > div {
+    display: flex;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+  .row__meta dt {
+    flex: none;
+    width: 6.5rem;
+    color: var(--text-muted);
+  }
+  .row__meta dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .row__facts dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    color: var(--text-muted);
+    padding-top: 0.2rem;
+  }
+  .truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+  .row__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  @media (min-width: 960px) {
+    .row {
+      grid-template-columns: 140px minmax(0, 1fr) auto;
+      align-items: center;
+    }
+    .row__thumb img,
+    .row__placeholder {
+      width: 140px;
+    }
+    .row__actions {
+      grid-column: auto;
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 0;
+      border-top: 0;
+      padding-left: 1rem;
+      border-left: 1px solid var(--border);
+    }
+  }
+  @media (max-width: 560px) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .row__thumb {
+      display: none;
+    }
+    .row__meta > div {
+      flex-direction: column;
+      gap: 0;
+    }
+    .row__facts {
+      padding-top: 0.25rem;
+    }
+    .row__actions .btn {
+      flex: 1 1 calc(50% - 0.25rem);
+    }
+  }
+</style>

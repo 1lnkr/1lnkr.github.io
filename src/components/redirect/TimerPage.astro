@@ -1,0 +1,182 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/interstitial.css';
+import AdSlot from '../AdSlot.astro';
+import LinkHero from './LinkHero.astro';
+import type { ResolvedLink } from '../../lib/links';
+import { settings } from '../../lib/site';
+
+/*
+ * Timed redirect: a visible countdown, then a manual Continue button. The page only
+ * navigates automatically when the administrator enabled "automatic continuation" for
+ * this link. The countdown never touches the ad slot.
+ */
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+const timer = link.data.timer;
+const duration = timer.duration;
+const heading = timer.heading || 'Your link is almost ready';
+const continueText = timer.continueText || 'Continue to destination';
+const showButton = timer.showContinueButton;
+const auto = timer.autoContinue;
+const circumference = 2 * Math.PI * 52;
+---
+
+<BaseLayout
+  title={`${link.seoTitle} · ${settings.siteName}`}
+  description={link.description}
+  canonical={link.canonical}
+  image={link.image}
+  imageAlt={link.imageAlt}
+  robots="noindex, follow"
+  narrow
+>
+  {
+    auto && (
+      <noscript slot="head">
+        <meta http-equiv="refresh" content={`${duration}; url=${link.destination}`} />
+      </noscript>
+    )
+  }
+
+  <article class="card interstitial">
+    <LinkHero link={link} />
+
+    <div class="interstitial__body">
+      <AdSlot ads={link.ads} at="top" />
+
+      <section class="timer" aria-labelledby="timer-heading" data-timer data-duration={duration} data-auto={auto ? 'true' : 'false'} data-href={link.destination}>
+        <div class="timer__ring" aria-hidden="true">
+          <svg viewBox="0 0 120 120">
+            <circle class="timer__track" cx="60" cy="60" r="52"></circle>
+            <circle
+              class="timer__progress"
+              cx="60"
+              cy="60"
+              r="52"
+              stroke-dasharray={circumference.toFixed(2)}
+              stroke-dashoffset="0"
+              data-timer-ring></circle>
+          </svg>
+          <span class="timer__number" data-timer-number>{duration}</span>
+        </div>
+        <div class="timer__text">
+          <h2 id="timer-heading">{heading}</h2>
+          {timer.description && <p class="muted">{timer.description}</p>}
+          <p class="timer__remaining" role="timer" aria-live="off" data-timer-label>
+            Please wait <strong data-timer-seconds>{duration}</strong> seconds.
+          </p>
+        </div>
+      </section>
+
+      <AdSlot ads={link.ads} at="middle" />
+
+      <div class="actions">
+        <p class="actions__status" data-status aria-live="polite">
+          {auto ? 'You will be redirected automatically when the countdown ends.' : 'The Continue button unlocks when the countdown ends.'}
+        </p>
+        {
+          showButton && (
+            <button type="button" class="btn btn-primary btn-lg" data-continue data-href={link.destination} disabled>
+              <span>{continueText}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </button>
+          )
+        }
+        {
+          auto && showButton && (
+            <button type="button" class="btn btn-sm cancel-auto" data-cancel-auto>
+              Stay on this page
+            </button>
+          )
+        }
+        <noscript>
+          <p class="small muted">
+            JavaScript is off. {auto ? `You will be redirected after ${duration} seconds, or ` : 'You can '}
+            <a href={link.destination} rel="noopener">open {link.destinationHost} directly</a>.
+          </p>
+        </noscript>
+      </div>
+
+      <AdSlot ads={link.ads} at="bottom" />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .timer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .timer__ring {
+    position: relative;
+    flex: none;
+    width: 112px;
+    height: 112px;
+  }
+  .timer__ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .timer__track,
+  .timer__progress {
+    fill: none;
+    stroke-width: 8;
+  }
+  .timer__track {
+    stroke: var(--surface-2);
+  }
+  .timer__progress {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.25s linear;
+  }
+  .timer.is-done .timer__progress {
+    stroke: var(--success);
+  }
+  .timer__number {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
+  .timer__text {
+    min-width: 0;
+  }
+  .timer__remaining {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .cancel-auto {
+    justify-self: center;
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-muted);
+  }
+  .small {
+    font-size: 0.875rem;
+  }
+  @media (max-width: 480px) {
+    .timer {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+  }
+</style>
+
+<script>
+  import { initTimer } from '../../scripts/timer';
+  initTimer();
+</script>

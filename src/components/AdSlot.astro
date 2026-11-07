@@ -1,0 +1,27 @@
+---
+import type { ResolvedAds } from '../lib/links';
+
+/*
+ * Renders administrator-approved ad code verbatim inside a clearly labelled, visible
+ * container. The code is never modified, wrapped in hidden iframes, auto-clicked or
+ * required for anything. It was linted at build time (src/lib/validate.ts → checkAdCode)
+ * and only hosts from the allow-list may be loaded.
+ */
+interface Props {
+  ads: ResolvedAds;
+  /** The placement this slot represents; it renders only if it matches the link's placement. */
+  at: 'top' | 'middle' | 'bottom';
+}
+
+const { ads, at } = Astro.props;
+const visible = ads.show && ads.placement === at;
+---
+
+{
+  visible && (
+    <aside class="ad-slot" aria-label={ads.label} data-ad-slot={at}>
+      <span class="ad-slot__label">{ads.label}</span>
+      <div class="ad-slot__body" set:html={ads.code} />
+    </aside>
+  )
+}

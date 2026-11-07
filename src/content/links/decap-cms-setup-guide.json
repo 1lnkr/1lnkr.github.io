@@ -1,0 +1,48 @@
+{
+  "title": "Decap CMS Setup Guide",
+  "slug": "",
+  "destination": "https://decapcms.org/docs/intro/",
+  "image": "/images/uploads/decap-guide.png",
+  "imageAlt": "Orange card reading Decap CMS Guide",
+  "shortDescription": "A step-by-step introduction to Decap, the Git-based content manager this site uses.",
+  "category": "Guides",
+  "tags": ["cms", "decap"],
+  "published": true,
+  "createdAt": "2026-11-03T14:30:00.000Z",
+  "seoTitle": "Decap CMS Setup Guide — short link",
+  "metaDescription": "Short link to the official Decap CMS introduction and setup documentation.",
+  "redirectType": "locker",
+  "locker": {
+    "enabled": true,
+    "heading": "Before you continue",
+    "description": "Please take a moment to go through these quick steps. They help make sure you know where this link leads.",
+    "requiredSteps": 0,
+    "steps": [
+      {
+        "type": "acknowledge",
+        "title": "Check the destination",
+        "instruction": "This link opens decapcms.org, the official Decap CMS website, in this tab.",
+        "actionLabel": "I understand where this link goes"
+      },
+      {
+        "type": "read",
+        "title": "Read the quick summary",
+        "instruction": "Scroll through this short summary of what you will find.",
+        "content": "Decap CMS is an open-source content manager for static sites. Content is stored as files in your Git repository, and every change you save becomes a commit.\n\nThe introduction covers installing the admin interface, choosing a backend (such as GitHub), and defining the collections and fields your editors will use.\n\nIt takes about ten minutes to read and links to deeper guides for each topic.",
+        "seconds": 4,
+        "actionLabel": "I've read the summary"
+      },
+      {
+        "type": "wait",
+        "title": "Take a short pause",
+        "instruction": "Press Start and wait three seconds.",
+        "seconds": 3,
+        "actionLabel": "Start"
+      }
+    ],
+    "continueText": "Continue to Decap CMS docs",
+    "minWaitSeconds": 0,
+    "showProgress": true
+  },
+  "ads": { "mode": "inherit", "placement": "inherit", "code": "" }
+}

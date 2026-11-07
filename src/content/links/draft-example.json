@@ -1,0 +1,9 @@
+{
+  "title": "Draft example",
+  "slug": "draft-example",
+  "destination": "https://example.com/",
+  "shortDescription": "Unpublished links are never built or deployed.",
+  "published": false,
+  "createdAt": "2026-11-06T08:00:00.000Z",
+  "redirectType": "direct"
+}

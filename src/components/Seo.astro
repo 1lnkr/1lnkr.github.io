@@ -1,0 +1,47 @@
+---
+import { absoluteUrl, settings } from '../lib/site';
+
+/*
+ * Every page's <title>, description, canonical, robots and social tags in one place,
+ * so no page can emit duplicate or conflicting metadata.
+ */
+interface Props {
+  title: string;
+  description: string;
+  /** Absolute canonical URL. Defaults to the current page URL. */
+  canonical?: string;
+  /** Featured image (site-relative path or https URL). Falls back to the default social image. */
+  image?: string;
+  imageAlt?: string;
+  /** e.g. "noindex, follow" for redirect and interstitial pages. */
+  robots?: string;
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, canonical, image, imageAlt, robots = 'index, follow', ogType = 'website' } = Astro.props;
+
+const pageUrl = canonical ?? absoluteUrl(Astro.url.pathname);
+const socialImage = image || settings.defaultSocialImage;
+const socialImageUrl = socialImage ? absoluteUrl(socialImage) : '';
+const socialImageAlt = image ? imageAlt || title : settings.defaultSocialImageAlt || title;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={pageUrl} />
+<meta name="robots" content={robots} />
+
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={settings.siteName} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={pageUrl} />
+{socialImageUrl && <meta property="og:image" content={socialImageUrl} />}
+{socialImageUrl && <meta property="og:image:alt" content={socialImageAlt} />}
+
+<meta name="twitter:card" content={socialImageUrl ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{socialImageUrl && <meta name="twitter:image" content={socialImageUrl} />}
+{socialImageUrl && <meta name="twitter:image:alt" content={socialImageAlt} />}
+{settings.twitterHandle && <meta name="twitter:site" content={settings.twitterHandle} />}

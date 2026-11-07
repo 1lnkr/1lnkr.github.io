@@ -1,0 +1,72 @@
+name: Deploy to GitHub Pages
+
+# Builds and publishes the site to https://lnkrs.github.io/ (repository Lnkrs/Lnkrs.github.io)
+# Runs on every push to main — including the commits Decap CMS makes when you save a link —
+# and can be started manually from the Actions tab ("Run workflow").
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push waits instead of cancelling a running deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Type-check and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+
+  build:
+    name: Build
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      # Optional overrides (Settings → Secrets and variables → Actions → Variables).
+      # Without them the site URL and base path are derived from the repository name.
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH }}
+      PUBLIC_LINK_PREFIX: ${{ vars.PUBLIC_LINK_PREFIX || 'links' }}
+      PUBLIC_CMS_REPO: ${{ vars.PUBLIC_CMS_REPO }}
+      PUBLIC_CMS_BRANCH: ${{ vars.PUBLIC_CMS_BRANCH }}
+      PUBLIC_CMS_OAUTH_URL: ${{ vars.PUBLIC_CMS_OAUTH_URL }}
+      PUBLIC_CMS_OAUTH_ENDPOINT: ${{ vars.PUBLIC_CMS_OAUTH_ENDPOINT }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install, build, and upload the site
+        uses: withastro/action@v6
+        with:
+          node-version: 24
+      - name: Verify generated pages, sitemap and internal links
+        run: node scripts/verify-dist.mjs
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

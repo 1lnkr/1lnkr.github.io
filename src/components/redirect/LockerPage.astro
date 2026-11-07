@@ -1,0 +1,306 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/interstitial.css';
+import AdSlot from '../AdSlot.astro';
+import LinkHero from './LinkHero.astro';
+import type { ResolvedLink } from '../../lib/links';
+import { settings } from '../../lib/site';
+
+/*
+ * URL Locker: the visitor completes administrator-defined, non-advertising steps
+ * (acknowledge, read, wait). Continue unlocks only when enough steps are done, and the
+ * redirect happens only when the visitor clicks it. Ads are never part of any step.
+ *
+ * This is client-side only — it guides visitors, it is NOT security. The destination is
+ * present in the page source (see docs/limitations.md).
+ */
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+const locker = link.data.locker;
+const steps = locker.steps;
+const required = locker.requiredSteps > 0 ? Math.min(locker.requiredSteps, steps.length) : steps.length;
+const continueText = locker.continueText || 'Continue to destination';
+const heading = locker.heading || 'Unlock this link';
+const paragraphs = (value = '') =>
+  value
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+const defaultAction: Record<string, string> = {
+  acknowledge: 'I understand',
+  read: "I've read this",
+  wait: 'Start',
+};
+---
+
+<BaseLayout
+  title={`${link.seoTitle} · ${settings.siteName}`}
+  description={link.description}
+  canonical={link.canonical}
+  image={link.image}
+  imageAlt={link.imageAlt}
+  robots="noindex, follow"
+  narrow
+>
+  <article class="card interstitial">
+    <LinkHero link={link} />
+
+    <div class="interstitial__body">
+      <AdSlot ads={link.ads} at="top" />
+
+      <section
+        class="locker"
+        aria-labelledby="locker-heading"
+        data-locker
+        data-required={required}
+        data-min-wait={locker.minWaitSeconds}
+      >
+        <h2 id="locker-heading">{heading}</h2>
+        {paragraphs(locker.description).map((p) => <p class="muted">{p}</p>)}
+
+        {
+          locker.showProgress && (
+            <div class="progress" data-progress>
+              <div class="progress__meta">
+                <span>Progress</span>
+                <span data-progress-text>
+                  0 of {required} step{required === 1 ? '' : 's'} complete
+                </span>
+              </div>
+              <div
+                class="progress__track"
+                role="progressbar"
+                aria-label="Unlock progress"
+                aria-valuemin="0"
+                aria-valuemax={required}
+                aria-valuenow="0"
+                data-progress-bar
+              >
+                <div class="progress__fill" data-progress-fill />
+              </div>
+            </div>
+          )
+        }
+
+        {
+          required < steps.length && (
+            <p class="muted small">
+              Complete any {required} of the {steps.length} steps below.
+            </p>
+          )
+        }
+
+        <ol class="steps">
+          {
+            steps.map((step, index) => (
+              <li class="step" data-step data-type={step.type} data-seconds={step.seconds} data-index={index}>
+                <div class="step__marker" aria-hidden="true">
+                  <span class="step__number">{index + 1}</span>
+                  <svg class="step__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12.5 10 17l9-10" />
+                  </svg>
+                </div>
+                <div class="step__content">
+                  <h3 class="step__title">
+                    {step.title}
+                    <span class="visually-hidden" data-step-state>
+                      (not completed)
+                    </span>
+                  </h3>
+                  {step.instruction && <p class="muted">{step.instruction}</p>}
+
+                  {step.type === 'read' && (
+                    <div class="step__reading" tabindex="0" role="region" aria-label={`Text for: ${step.title}`} data-reading>
+                      {paragraphs(step.content).map((p) => (
+                        <p>{p}</p>
+                      ))}
+                    </div>
+                  )}
+
+                  {step.type === 'acknowledge' ? (
+                    <label class="step__check-label">
+                      <input type="checkbox" data-step-action />
+                      <span>{step.actionLabel || defaultAction.acknowledge}</span>
+                    </label>
+                  ) : (
+                    <button type="button" class="btn btn-sm" data-step-action>
+                      {step.actionLabel || defaultAction[step.type]}
+                    </button>
+                  )}
+                  <p class="step__hint small muted" data-step-hint aria-live="polite" />
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <AdSlot ads={link.ads} at="middle" />
+
+      <div class="actions">
+        <p class="actions__status" data-status aria-live="polite">
+          Complete the steps above to unlock the link.
+        </p>
+        <button type="button" class="btn btn-primary btn-lg" data-continue data-href={link.destination} disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+            ><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg
+          >
+          <span>{continueText}</span>
+        </button>
+        <noscript>
+          <p class="small muted">
+            This page needs JavaScript to track the steps. You can also open the destination directly:
+            <a href={link.destination} rel="noopener">{link.destinationHost}</a>.
+          </p>
+        </noscript>
+      </div>
+
+      <AdSlot ads={link.ads} at="bottom" />
+    </div>
+  </article>
+
+  <p class="disclaimer small muted" slot="footer">
+    These steps are a guide, not a security check. Only continue if you trust {link.destinationHost}.
+  </p>
+</BaseLayout>
+
+<style>
+
+  .locker h2 {
+    margin-top: 0.25rem;
+  }
+  .progress {
+    margin: 1.25rem 0;
+  }
+  .progress__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  .progress__track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .progress__fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: inherit;
+    transition: width 0.35s var(--ease);
+  }
+  .steps {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .step {
+    display: flex;
+    gap: 0.9rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    transition:
+      border-color 0.2s var(--ease),
+      background-color 0.2s var(--ease);
+  }
+  .step__marker {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .step__check {
+    display: none;
+    width: 16px;
+    height: 16px;
+  }
+  .step__content {
+    min-width: 0;
+    flex: 1;
+  }
+  .step__title {
+    font-size: 1rem;
+    margin: 0.15rem 0 0.35rem;
+  }
+  .step__content > p {
+    margin-bottom: 0.75rem;
+  }
+  .step__reading {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    font-size: 0.9375rem;
+  }
+  .step__reading p:last-child {
+    margin-bottom: 0;
+  }
+  .step__check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 32px;
+  }
+  .step__check-label input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .step__hint {
+    margin: 0.4rem 0 0;
+  }
+  .step__hint:empty {
+    display: none;
+  }
+  .step.is-done {
+    border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+    background: color-mix(in srgb, var(--success-soft) 55%, var(--surface));
+  }
+  .step.is-done .step__marker {
+    border-color: var(--success);
+    background: var(--success);
+    color: var(--surface);
+  }
+  .step.is-done .step__number {
+    display: none;
+  }
+  .step.is-done .step__check {
+    display: block;
+  }
+  .small {
+    font-size: 0.875rem;
+  }
+  .disclaimer {
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { initLocker } from '../../scripts/locker';
+  initLocker();
+</script>

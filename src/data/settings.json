@@ -1,0 +1,24 @@
+{
+  "siteName": "Lnkrs",
+  "siteDescription": "Personal short links — curated destinations shared by the site owner.",
+  "ownerName": "Site owner",
+  "defaultSocialImage": "/images/site/social-default.png",
+  "defaultSocialImageAlt": "Lnkrs — personal short links",
+  "twitterHandle": "",
+  "indexHomepage": true,
+  "ads": {
+    "enabled": true,
+    "showOnDirect": false,
+    "showOnLocker": true,
+    "showOnTimer": true,
+    "label": "Advertisement",
+    "defaultPlacement": "bottom",
+    "defaultCode": "",
+    "allowedHosts": [
+      "highperformanceformat.com",
+      "profitableratecpm.com",
+      "effectivegatecpm.com",
+      "adsterra.com"
+    ]
+  }
+}

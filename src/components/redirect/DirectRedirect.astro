@@ -1,0 +1,63 @@
+---
+import '../../styles/global.css';
+import Seo from '../Seo.astro';
+import AdSlot from '../AdSlot.astro';
+import type { ResolvedLink } from '../../lib/links';
+import { settings, url } from '../../lib/site';
+import { jsonForScript } from '../../lib/validate';
+
+/*
+ * Direct redirect: no intermediate page for visitors with JavaScript — location.replace()
+ * runs before anything renders. The HTML body is only a fallback (no-JS, very slow
+ * devices). Social crawlers don't run JavaScript, so they still read the Open Graph tags.
+ */
+interface Props {
+  link: ResolvedLink;
+}
+
+const { link } = Astro.props;
+const destinationJson = jsonForScript(link.destination);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script is:inline set:html={`location.replace(${destinationJson});`} />
+    <noscript><meta http-equiv="refresh" content={`0; url=${link.destination}`} /></noscript>
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
+    <Seo
+      title={`${link.seoTitle} · ${settings.siteName}`}
+      description={link.description}
+      canonical={link.canonical}
+      image={link.image}
+      imageAlt={link.imageAlt}
+      robots="noindex, follow"
+    />
+    <style is:global>
+      .redirect-page {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem 16px;
+      }
+      .redirect {
+        max-width: 32rem;
+      }
+    </style>
+  </head>
+  <body class="redirect-page">
+    <main class="redirect">
+      <h1>Redirecting…</h1>
+      <p>
+        You are being taken to <strong>{link.destinationHost}</strong>. If nothing happens,
+        <a href={link.destination} rel="noopener">continue to {link.destinationHost}</a>.
+      </p>
+      <AdSlot ads={link.ads} at="top" />
+      <AdSlot ads={link.ads} at="middle" />
+      <AdSlot ads={link.ads} at="bottom" />
+    </main>
+  </body>
+</html>
