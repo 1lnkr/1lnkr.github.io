@@ -17,7 +17,7 @@ import { RESERVED_SLUGS, SLUG_MAX_LENGTH } from '../../lib/validate';
  */
 export const GET: APIRoute = () => {
   const env = import.meta.env;
-  const repo = env.PUBLIC_CMS_REPO || process.env.GITHUB_REPOSITORY || 'Lnkrs/Lnkrs.github.io';
+  const repo = env.PUBLIC_CMS_REPO || process.env.GITHUB_REPOSITORY || '1lnkr/1lnkr.github.io';
   const branch = env.PUBLIC_CMS_BRANCH || 'main';
   // The shared Vercel proxy (github.com/dev-bishal/decap-oauth). Its ALLOWED_ORIGINS
   // must contain https://lnkrs.github.io.
