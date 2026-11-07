@@ -1,0 +1,41 @@
+{
+  "shortDescription": "Learn the HTML meta tags that matter in 2026, including charset, viewport, description, robots, canonical, Open Graph and theme-color, with examples.",
+  "timer": {
+    "duration": 10,
+    "heading": "Your link is almost ready",
+    "continueText": "Continue to destination",
+    "autoContinue": false,
+    "showContinueButton": true,
+    "description": ""
+  },
+  "showOnHomepage": false,
+  "slug": "bishal-biswas-meta-tag",
+  "destination": "https://bishal-biswas.github.io/articles/html-meta-tags-seo-basics",
+  "published": true,
+  "imageAlt": "HTML Meta Tags Every Beginner Should Know",
+  "updatedAt": "",
+  "ads": {
+    "mode": "inherit",
+    "placement": "inherit"
+  },
+  "redirectType": "timer",
+  "metaDescription": "Learn the HTML meta tags that matter in 2026, including charset, viewport, description, robots, canonical, Open Graph and theme-color, with examples.",
+  "title": "HTML Meta Tags Every Beginner Should Know",
+  "locker": {
+    "enabled": true,
+    "heading": "Unlock this link",
+    "requiredSteps": 0,
+    "steps": [],
+    "continueText": "Continue to destination",
+    "minWaitSeconds": 0,
+    "showProgress": true
+  },
+  "tags": [
+    "HTML",
+    "Meta Tags"
+  ],
+  "createdAt": "2026-11-07T15:44:00.000+05:30",
+  "image": "https://bishal-biswas.github.io/uploads/articles/html-meta-tags-seo-basics.webp",
+  "seoTitle": "HTML Meta Tags Every Beginner Should Know",
+  "category": "Others"
+}
